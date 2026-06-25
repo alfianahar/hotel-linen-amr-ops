@@ -1,6 +1,6 @@
-export interface ISaltoDoorFixedPosition { x: number; y: number }
+export interface IDoorFixedPosition { x: number; y: number }
 
-const POSITIONS: Record<string, ISaltoDoorFixedPosition> = {
+const POSITIONS: Record<string, IDoorFixedPosition> = {
   '0:Dispatch': { x: 10, y: 0 },
   '0:Corridor': { x: 300, y: 0 },
   '0:Storage': { x: 460, y: 0 },
@@ -16,6 +16,6 @@ const POSITIONS: Record<string, ISaltoDoorFixedPosition> = {
   '8:ChuteArea': { x: 300, y: 180 },
 }
 
-export function getSaltoDoorFixedPosition(floor: number, area: string): ISaltoDoorFixedPosition | null {
+export function getDoorFixedPosition(floor: number, area: string): IDoorFixedPosition | null {
   return POSITIONS[`${floor}:${area}`] ?? null
 }

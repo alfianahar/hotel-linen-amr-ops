@@ -15,13 +15,13 @@ export const SEED_ROBOTS = [
 ]
 
 export const SEED_TASKS = [
-  { id: 1, name: 'Open RFID Cabinet', type: 'chute', api_path: 'open', payload: null, created_at: new Date().toISOString() },
-  { id: 2, name: 'Close RFID Cabinet', type: 'chute', api_path: 'close', payload: null, created_at: new Date().toISOString() },
+  { id: 1, name: 'Open RFID Cabinet', type: 'cabinet', api_path: 'open', payload: null, created_at: new Date().toISOString() },
+  { id: 2, name: 'Close RFID Cabinet', type: 'cabinet', api_path: 'close', payload: null, created_at: new Date().toISOString() },
   { id: 3, name: 'Move Trolley', type: 'trolley', api_path: 'move_trolley', payload: null, created_at: new Date().toISOString() },
-  { id: 4, name: 'Navigate to Station', type: 'seer', api_path: 'navigate', payload: null, created_at: new Date().toISOString() },
-  { id: 5, name: 'Charge Robot', type: 'seer', api_path: 'charge', payload: null, created_at: new Date().toISOString() },
-  { id: 6, name: 'Open Door', type: 'salto', api_path: 'open_door', payload: null, created_at: new Date().toISOString() },
-  { id: 7, name: 'Call Lift', type: 'kone', api_path: 'call_lift', payload: null, created_at: new Date().toISOString() },
+  { id: 4, name: 'Navigate to Station', type: 'robot', api_path: 'navigate', payload: null, created_at: new Date().toISOString() },
+  { id: 5, name: 'Charge Robot', type: 'robot', api_path: 'charge', payload: null, created_at: new Date().toISOString() },
+  { id: 6, name: 'Open Door', type: 'door', api_path: 'open_door', payload: null, created_at: new Date().toISOString() },
+  { id: 7, name: 'Call Lift', type: 'lift', api_path: 'call_lift', payload: null, created_at: new Date().toISOString() },
 ]
 
 export const SEED_AUTOMATION_RULES = [
@@ -37,7 +37,6 @@ export const SEED_DOOR_CONFIGS = [
 
 export const SEED_SETTINGS: Record<string, string> = {
   push_interval: '500',
-  seer_tcp_enabled: 'false',
 }
 
 export interface RobotLocation {

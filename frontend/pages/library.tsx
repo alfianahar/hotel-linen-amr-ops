@@ -20,9 +20,10 @@ export default function LibraryPage() {
               <option value="all">All Types</option>
               <option value="chute">Chute</option>
               <option value="trolley">Trolley</option>
-              <option value="seer">Robot</option>
-              <option value="salto">Door</option>
-              <option value="kone">Lift</option>
+              <option value="robot">Robot</option>
+              <option value="door">Door</option>
+              <option value="lift">Lift</option>
+              <option value="cabinet">Cabinet</option>
             </select>
           </div>
           <div className="bg-white rounded-lg border overflow-hidden">

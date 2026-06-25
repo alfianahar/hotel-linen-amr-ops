@@ -1,10 +1,10 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react'
-import { EBoxType, ETrolleyType, IMapStageProps, ISaltoDoorBox, TMapBox } from './types'
+import { EBoxType, ETrolleyType, IMapStageProps, IDoorBox, TMapBox } from './types'
 import { BOX_TYPE_COLORS, TROLLEY_TYPE_COLORS } from './constants'
 import APDetailPanel, { PanelMode } from './components/APDetailPanel'
-import SaltoDoorPanel from './components/SaltoDoorPanel'
+import DoorPanel from './components/DoorPanel'
 import { ALL_FLOORS } from './floors'
-import { getSaltoDoorFixedPosition } from './saltoDoorPositions'
+import { getDoorFixedPosition } from './doorPositions'
 
 const MIN_ZOOM = 0.4; const MAX_ZOOM = 3.0; const ZOOM_STEP = 0.15; const PINCH_SENSITIVITY = 0.01
 
@@ -27,7 +27,7 @@ const MapStage: React.FC<IMapStageProps> = ({
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null)
 
   const [panelMode, setPanelMode] = useState<PanelMode | null>(null)
-  const [selectedSaltoDoor, setSelectedSaltoDoor] = useState<ISaltoDoorBox | null>(null)
+  const [selectedSaltoDoor, setSelectedSaltoDoor] = useState<IDoorBox | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const abortExecutionRef = useRef<(() => void) | null>(null)
 
@@ -64,7 +64,7 @@ const MapStage: React.FC<IMapStageProps> = ({
   const handleBoxClick = useCallback((box: TMapBox) => {
     const isAP = box.type === EBoxType.AP
     const isTargetOnly = box.type === EBoxType.CP
-    const isSaltoDoor = box.type === EBoxType.SALTO_DOOR
+    const isSaltoDoor = box.type === EBoxType.DOOR
     const isLm = [EBoxType.ELEVATOR, EBoxType.CHUTE, EBoxType.STORAGE, EBoxType.DISPATCH, EBoxType.RFID_KABINET].includes(box.type)
     const isSelectingDest = panelMode?.kind === 'selectDest'
     const isSelectingRfidReturn = panelMode?.kind === 'selectRfidReturnDest'
@@ -80,7 +80,7 @@ const MapStage: React.FC<IMapStageProps> = ({
       return
     }
     if (isAP || isLm || isTargetOnly) { setSelectedSaltoDoor(null); setPanelMode({ kind: 'detail', apId: box.id, apLabel: box.label, stationType: isAP ? 'ap' : isTargetOnly ? 'cp' : 'lm' }); return }
-    if (isSaltoDoor) { setPanelMode(null); setSelectedSaltoDoor(box as ISaltoDoorBox); return }
+    if (isSaltoDoor) { setPanelMode(null); setSelectedSaltoDoor(box as IDoorBox); return }
     setPanelMode(null); setSelectedSaltoDoor(null)
     if (onBoxClick && box.isClickable !== false) onBoxClick(box)
   }, [onBoxClick, panelMode, findBoxById])
@@ -199,7 +199,7 @@ const MapStage: React.FC<IMapStageProps> = ({
           const bg = BOX_TYPE_COLORS[box.type]; const sel = isSelected(box.id)
           const x = box.pose.position.x; const y = box.pose.position.y
           const isAP = box.type === EBoxType.AP
-          const isSaltoDoor = box.type === EBoxType.SALTO_DOOR
+          const isSaltoDoor = box.type === EBoxType.DOOR
           const supportsTrolley = isAP || box.id === 'LM34'
           const assignment = supportsTrolley && trolleyMap ? trolleyMap[box.id] ?? null : null
           const tColor = assignment ? TROLLEY_TYPE_COLORS[assignment.trolley.type] : null
@@ -230,7 +230,7 @@ const MapStage: React.FC<IMapStageProps> = ({
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.STORAGE]} label="Storage" />
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.DISPATCH]} label="Dispatch" />
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.CHUTE]} label="Chute" />
-            <LegendItem color={BOX_TYPE_COLORS[EBoxType.SALTO_DOOR]} label="Door" />
+            <LegendItem color={BOX_TYPE_COLORS[EBoxType.DOOR]} label="Door" />
             <span className="w-px h-4 bg-gray-300" />
             <TLegend color={TROLLEY_TYPE_COLORS[ETrolleyType.EMPTY_CLEAN]} label="Empty Clean" />
             <TLegend color={TROLLEY_TYPE_COLORS[ETrolleyType.FULL_CLEAN]} label="Full Clean" />
@@ -293,7 +293,7 @@ const MapStage: React.FC<IMapStageProps> = ({
 
       {selectedSaltoDoor && (
         <div ref={panelRef}>
-          <SaltoDoorPanel door={selectedSaltoDoor} onOpen={async () => ({ success: true, message: 'Door opened' })} onClose={() => setSelectedSaltoDoor(null)} />
+          <DoorPanel door={selectedSaltoDoor} onOpen={async () => ({ success: true, message: 'Door opened' })} onClose={() => setSelectedSaltoDoor(null)} />
         </div>
       )}
 

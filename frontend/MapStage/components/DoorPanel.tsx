@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { AlertCircle, CheckCircle, Play } from 'lucide-react'
-import { ISaltoDoorBox } from '../types'
+import { IDoorBox } from '../types'
 
 interface Props {
-  door: ISaltoDoorBox
-  onOpen: (door: ISaltoDoorBox) => Promise<{ success: boolean; message: string }>
+  door: IDoorBox
+  onOpen: (door: IDoorBox) => Promise<{ success: boolean; message: string }>
   onClose: () => void
 }
 
-const SaltoDoorPanel: React.FC<Props> = ({ door, onOpen, onClose }) => {
+const DoorPanel: React.FC<Props> = ({ door, onOpen, onClose }) => {
   const [isOpening, setIsOpening] = useState(false)
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
@@ -55,4 +55,4 @@ const SaltoDoorPanel: React.FC<Props> = ({ door, onOpen, onClose }) => {
   )
 }
 
-export default SaltoDoorPanel
+export default DoorPanel

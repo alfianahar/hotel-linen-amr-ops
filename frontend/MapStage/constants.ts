@@ -10,7 +10,7 @@ export const BOX_TYPE_COLORS: Record<EBoxType, string> = {
   [EBoxType.STORAGE]: '#FFD700',
   [EBoxType.DISPATCH]: '#5EEAD4',
   [EBoxType.RFID_KABINET]: '#FF69B4',
-  [EBoxType.SALTO_DOOR]: '#FBBF24',
+  [EBoxType.DOOR]: '#FBBF24',
 }
 
 export const BOX_STATE_BORDERS: Record<EBoxState, string> = {

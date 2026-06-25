@@ -12,7 +12,7 @@ export interface Task { id: number; name: string; type: string; api_path: string
 export interface TaskQueue { id: number; robot_ip: string; task_type: 'single' | 'sequence'; task_id?: number; task_sequence_id?: number; status: string; priority: number; order_index: number; created_at: string }
 export interface AutomationRule { id: number; name: string; description?: string; enabled: boolean; trigger_type: string; trigger_config: string; action_type: string; action_config: string; created_at: string }
 export interface AutomationExecution { id: number; rule_id: number; status: string; triggered_by: string; context?: string; result?: string; error_message?: string; started_at: string }
-export interface SaltoDoorID { id: number; floor: number | null; area: string | null; reader_name: string; extension_id: string; created_at: string }
+export interface DoorConfig { id: number; floor: number | null; area: string | null; reader_name: string; extension_id: string; created_at: string }
 export interface TaskMasterAssignment { id: number; status: string; source: string; task_type: string; task_id?: number; task_sequence_id?: number; robot_assignment_mode: string; requested_robot_ip?: string; assigned_robot_ip?: string; queue_id?: number; source_ap_id?: string; dest_ap_id?: string; created_at: string }
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
@@ -26,7 +26,7 @@ interface Store {
   taskQueues: TaskQueue[]
   automationRules: AutomationRule[]
   automationExecutions: AutomationExecution[]
-  doorConfigs: SaltoDoorID[]
+  doorConfigs: DoorConfig[]
   settings: Record<string, string>
   taskMasterAssignments: TaskMasterAssignment[]
   _nextId: number
@@ -85,7 +85,7 @@ interface StorageCtx {
   getTasks: () => Task[]
   getQueues: (robotIp?: string) => TaskQueue[]
   automationRules: AutomationRule[]
-  doorConfigs: SaltoDoorID[]
+  doorConfigs: DoorConfig[]
   updateDoorConfig: (id: number, data: { floor?: number | null; area?: string | null }) => void
   updateSetting: (name: string, value: string) => void
   getSetting: (name: string) => string | undefined

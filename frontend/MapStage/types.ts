@@ -6,7 +6,7 @@ export enum EBoxType {
   STORAGE = 'STORAGE',
   DISPATCH = 'DISPATCH',
   RFID_KABINET = 'RFID_KABINET',
-  SALTO_DOOR = 'SALTO_DOOR',
+  DOOR = 'DOOR',
 }
 
 export enum EParkingArea {
@@ -73,9 +73,9 @@ export interface IBox {
 export interface IAPBox extends IBox { type: EBoxType.AP; linkedTo?: string }
 export interface ICPBox extends IBox { type: EBoxType.CP; connectedAPs?: string[] }
 export interface ISpecialLMBox extends IBox { type: EBoxType.ELEVATOR | EBoxType.CHUTE | EBoxType.STORAGE | EBoxType.RFID_KABINET | EBoxType.DISPATCH; lmId: string; description: string }
-export interface ISaltoDoorBox extends IBox { type: EBoxType.SALTO_DOOR; area: string; floor: number; doorIds: string[]; readerNames: string[] }
+export interface IDoorBox extends IBox { type: EBoxType.DOOR; area: string; floor: number; doorIds: string[]; readerNames: string[] }
 
-export type TMapBox = IAPBox | ICPBox | ISpecialLMBox | ISaltoDoorBox
+export type TMapBox = IAPBox | ICPBox | ISpecialLMBox | IDoorBox
 
 export interface IWaypoint { id: string; label: string; pose: IPose; isNavigable?: boolean }
 export interface IPathSegment { id: string; from: string; to: string; color?: string; lineWidth?: number }
