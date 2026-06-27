@@ -5,6 +5,7 @@ import path from 'path'
 const frontendDir = path.resolve(__dirname, 'frontend')
 
 export default defineConfig({
+  base: '/hotel-linen-amr-ops/',
   root: frontendDir,
   plugins: [react()],
   resolve: {
