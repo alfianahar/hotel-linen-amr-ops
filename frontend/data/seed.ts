@@ -8,10 +8,6 @@ export const SEED_TROLLEYS: ITrolley[] = Array.from({ length: 36 }, (_, i) => ({
 export const SEED_ROBOTS = [
   { id: 'r1', name: 'Robot-1', ip_address: '192.168.1.101', robot_key: null, charging_point: 'CP1', priority: 1, task_master_max_active: 2, carried_trolley_id: null, created_at: new Date().toISOString() },
   { id: 'r2', name: 'Robot-2', ip_address: '192.168.1.102', robot_key: null, charging_point: 'CP2', priority: 2, task_master_max_active: 2, carried_trolley_id: null, created_at: new Date().toISOString() },
-  { id: 'r3', name: 'Robot-3', ip_address: '192.168.1.103', robot_key: null, charging_point: null, priority: 3, task_master_max_active: 2, carried_trolley_id: null, created_at: new Date().toISOString() },
-  { id: 'r4', name: 'Robot-4', ip_address: '192.168.1.104', robot_key: null, charging_point: null, priority: 4, task_master_max_active: 2, carried_trolley_id: null, created_at: new Date().toISOString() },
-  { id: 'r5', name: 'Robot-5', ip_address: '192.168.1.105', robot_key: null, charging_point: null, priority: 5, task_master_max_active: 1, carried_trolley_id: null, created_at: new Date().toISOString() },
-  { id: 'r6', name: 'Robot-6', ip_address: '192.168.1.106', robot_key: null, charging_point: null, priority: 6, task_master_max_active: 1, carried_trolley_id: null, created_at: new Date().toISOString() },
 ]
 
 export const SEED_TASKS = [
@@ -31,7 +27,7 @@ export const SEED_AUTOMATION_RULES = [
 export const SEED_DOOR_CONFIGS = [
   { id: 1, floor: 0, area: 'Dispatch', reader_name: 'BASEMENT-DISPATCH', extension_id: 'ext-dispatch' },
   { id: 2, floor: 0, area: 'Storage', reader_name: 'BASEMENT-STORAGE', extension_id: 'ext-storage' },
-  { id: 3, floor: 0, area: 'ChuteArea', reader_name: 'BASEMENT-CHUTE', extension_id: 'ext-chute' },
+  { id: 3, floor: 0, area: 'DirtyLinenArea', reader_name: 'BASEMENT-DIRTY-LINEN', extension_id: 'ext-dirty-linen' },
   { id: 4, floor: 1, area: 'Corridor', reader_name: 'F1-CORRIDOR', extension_id: 'ext-f1-corridor' },
 ]
 

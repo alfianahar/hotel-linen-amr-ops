@@ -32,7 +32,7 @@ interface Store {
   _nextId: number
 }
 
-const STORAGE_KEY = 'hotel-linen-ops:store'
+const STORAGE_KEY = 'hotel-linen-ops:store:v2'
 
 function initStore(): Store {
   const assignments: Record<string, ITrolleyAssignment | null> = {}
@@ -82,6 +82,9 @@ interface StorageCtx {
   getAvailableTrolleys: () => ITrolley[]
   getRobots: () => Robot[]
   getRobotLocation: (ip: string) => RobotLocation | null
+  addRobot: (data: Omit<Robot, 'id' | 'created_at'>) => Robot
+  updateRobot: (id: string, data: Partial<Omit<Robot, 'id' | 'created_at'>>) => void
+  removeRobot: (id: string) => void
   getTasks: () => Task[]
   getQueues: (robotIp?: string) => TaskQueue[]
   automationRules: AutomationRule[]
@@ -193,6 +196,25 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
 
   const getRobots = useCallback(() => store.robots, [store.robots])
   const getRobotLocation = useCallback((ip: string) => store.robotLocations[ip] ?? null, [store.robotLocations])
+
+  const addRobot = useCallback((data: Omit<Robot, 'id' | 'created_at'>): Robot => {
+    const id = `r${Date.now().toString(36)}`
+    const robot: Robot = { ...data, id, created_at: new Date().toISOString() }
+    setStore(prev => ({ ...prev, robots: [...prev.robots, robot] }))
+    return robot
+  }, [setStore])
+
+  const updateRobot = useCallback((id: string, data: Partial<Omit<Robot, 'id' | 'created_at'>>) => {
+    setStore(prev => ({ ...prev, robots: prev.robots.map(r => r.id === id ? { ...r, ...data } : r) }))
+  }, [setStore])
+
+  const removeRobot = useCallback((id: string) => {
+    setStore(prev => {
+      const target = prev.robots.find(r => r.id === id)
+      const locations = target ? Object.fromEntries(Object.entries(prev.robotLocations).filter(([k]) => k !== target.ip_address)) : prev.robotLocations
+      return { ...prev, robots: prev.robots.filter(r => r.id !== id), robotLocations: locations, taskQueues: prev.taskQueues.filter(q => q.robot_ip !== target?.ip_address) }
+    })
+  }, [setStore])
   const getTasks = useCallback(() => store.tasks, [store.tasks])
   const getQueues = useCallback((robotIp?: string) => robotIp ? store.taskQueues.filter(q => q.robot_ip === robotIp) : store.taskQueues, [store.taskQueues])
 
@@ -216,12 +238,13 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
     store, getTrolleyState, assignTrolley, removeTrolley, moveTrolley, executeMove,
     queueMove, runTaskQueue, cancelQueue, clearRobotQueue, updateRobotLocation,
     updateTrolleyType, getAvailableTrolleys, getRobots, getRobotLocation,
+    addRobot, updateRobot, removeRobot,
     getTasks, getQueues,
     automationRules: store.automationRules,
     doorConfigs: store.doorConfigs,
     updateDoorConfig, updateSetting, getSetting, addAutomationExecution,
     isProcessing: isProcessingRef.current,
-  }), [store, getTrolleyState, assignTrolley, removeTrolley, moveTrolley, executeMove, queueMove, runTaskQueue, cancelQueue, clearRobotQueue, updateRobotLocation, updateTrolleyType, getAvailableTrolleys, getRobots, getRobotLocation, getTasks, getQueues, updateDoorConfig, updateSetting, getSetting, addAutomationExecution])
+  }), [store, getTrolleyState, assignTrolley, removeTrolley, moveTrolley, executeMove, queueMove, runTaskQueue, cancelQueue, clearRobotQueue, updateRobotLocation, updateTrolleyType, getAvailableTrolleys, getRobots, getRobotLocation, addRobot, updateRobot, removeRobot, getTasks, getQueues, updateDoorConfig, updateSetting, getSetting, addAutomationExecution])
 
   return <Ctx.Provider value={val}>{children}</Ctx.Provider>
 }
