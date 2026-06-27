@@ -17,6 +17,7 @@ interface Props {
   assignment: ITrolleyAssignment | null
   assignedTrolleyIds: Set<number>
   trolleyRegistry: ITrolley[]
+  boxType?: string
   onAssignTrolley: (apId: string, trolleyId: number, area: string, floor: number) => void
   onRemoveTrolley: (apId: string) => void
   onUpdateTrolleyType: (trolleyId: number, type: ETrolleyType) => void
@@ -34,6 +35,7 @@ interface Props {
   onQueueRfidReturn?: (to: string, robotIp: string, dstArea: string, dstFloor: number) => Promise<void>
   onCancelExecute?: (robotIp: string) => void
   onCabinetDoorAction?: (action: 'OpenDoor' | 'CloseDoor') => Promise<void>
+  onCallLift?: (elevatorId: string, floor: string) => Promise<void>
   onActionError: (msg: string) => void
   onCancelMove: () => void
   onClose: () => void
@@ -46,18 +48,22 @@ const robotOptionLabels = (robots: IRobotOption[]) =>
     : [{ value: '__auto_assign__', label: 'Auto-assign' }, ...robots.map(r => ({ value: r.ip, label: `${r.name} (${r.ip})` }))]
 
 const APDetailPanel: React.FC<Props> = ({
-  mode, assignment, assignedTrolleyIds, trolleyRegistry, onAssignTrolley, onRemoveTrolley,
+  mode, assignment, assignedTrolleyIds, trolleyRegistry, boxType, onAssignTrolley, onRemoveTrolley,
   onUpdateTrolleyType, onStartMove, onStartTargetMove, onConfirmMove, robots,
   onExecuteMove, onExecuteTargetMove, onQueueTargetMove, onQueueMove,
   onExecuteRfidMove, onQueueRfidMove, onExecuteRfidReturn, onQueueRfidReturn,
-  onCancelExecute, onCabinetDoorAction, onActionError, onCancelMove, onClose, abortRef,
+  onCancelExecute, onCabinetDoorAction, onCallLift, onActionError, onCancelMove, onClose, abortRef,
 }) => {
   const [selectedTrolleyId, setSelectedTrolleyId] = useState<number | null>(null)
   const [selectedRobotIp, setSelectedRobotIp] = useState('__auto_assign__')
   const [executing, setExecuting] = useState(false)
+  const [liftFloor, setLiftFloor] = useState('1')
+  const [liftCalling, setLiftCalling] = useState(false)
+  const [liftStatus, setLiftStatus] = useState<string | null>(null)
   const availableTrolleys = trolleyRegistry.filter(t => !assignedTrolleyIds.has(t.id) || (assignment && t.id === assignment.trolley.id))
   const robotOpts = robotOptionLabels(robots)
   const isRfidStation = mode.kind === 'detail' && (mode.apId === 'LM34' || mode.stationType === 'lm' && mode.apLabel.includes('RFID'))
+  const isElevator = mode.kind === 'detail' && (boxType === 'ELEVATOR' || mode.apLabel === 'Elevator' || mode.apId === 'LM23')
   const isDetail = mode.kind === 'detail'
   const isSelectDest = mode.kind === 'selectDest'
   const isConfirmMove = mode.kind === 'confirmMove'
@@ -146,6 +152,29 @@ const APDetailPanel: React.FC<Props> = ({
                   <button className="flex-1 text-xs bg-green-600 text-white rounded px-2 py-1.5 font-semibold" onClick={() => onCabinetDoorAction?.('OpenDoor')}>Open</button>
                   <button className="flex-1 text-xs bg-gray-600 text-white rounded px-2 py-1.5 font-semibold" onClick={() => onCabinetDoorAction?.('CloseDoor')}>Close</button>
                 </div>
+              </div>
+            )}
+
+            {isElevator && (
+              <div className="border-t pt-2">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Call Lift</span>
+                <select className="mt-1 w-full text-xs border rounded px-2 py-1.5" value={liftFloor} onChange={e => setLiftFloor(e.target.value)}>
+                  {['B', '1', '2', '3', '4', '5', '6', '7', '8'].map(f => (
+                    <option key={f} value={f === 'B' ? '0' : f}>{f === 'B' ? 'Basement' : `Floor ${f}`}</option>
+                  ))}
+                </select>
+                <button className="mt-1 w-full text-xs bg-primary text-white rounded px-2 py-1.5 font-semibold disabled:opacity-50"
+                  disabled={liftCalling}
+                  onClick={async () => {
+                    if (!onCallLift) return
+                    setLiftCalling(true); setLiftStatus(null)
+                    try {
+                      await onCallLift(mode.apId, liftFloor)
+                      setLiftStatus(`Lift called to ${liftFloor === '0' ? 'Basement' : 'Floor ' + liftFloor}`)
+                    } catch (e: any) { onActionError(e?.message ?? 'Lift call failed') }
+                    finally { setLiftCalling(false) }
+                  }}>{liftCalling ? 'Calling...' : 'Call Lift'}</button>
+                {liftStatus && <div className="text-[11px] text-green-700 mt-1">{liftStatus}</div>}
               </div>
             )}
           </>

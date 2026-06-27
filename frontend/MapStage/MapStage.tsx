@@ -6,7 +6,7 @@ import DoorPanel from './components/DoorPanel'
 import { ALL_FLOORS } from './floors'
 import { getDoorFixedPosition } from './doorPositions'
 
-const MIN_ZOOM = 0.4; const MAX_ZOOM = 3.0; const ZOOM_STEP = 0.15; const PINCH_SENSITIVITY = 0.01
+const MIN_ZOOM = 0.3; const MAX_ZOOM = 3.0; const ZOOM_STEP = 0.15; const PINCH_SENSITIVITY = 0.01
 
 const MapStage: React.FC<IMapStageProps> = ({
   config, boxes, selectedIds = [], onBoxClick, mapImageUrl, showLegend = true,
@@ -19,12 +19,14 @@ const MapStage: React.FC<IMapStageProps> = ({
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
   const panStart = useRef({ x: 0, y: 0 })
   const panOrigin = useRef({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const lastTouchDist = useRef<number | null>(null)
   const lastTouchCenter = useRef<{ x: number; y: number } | null>(null)
+  const userZoomed = useRef(false)
 
   const [panelMode, setPanelMode] = useState<PanelMode | null>(null)
   const [selectedSaltoDoor, setSelectedSaltoDoor] = useState<IDoorBox | null>(null)
@@ -89,11 +91,37 @@ const MapStage: React.FC<IMapStageProps> = ({
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (panelRef.current?.contains(e.target as Node)) return
+    userZoomed.current = true
     setZoom(p => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, p + (e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP))))
   }, [])
-  const zoomIn = useCallback(() => setZoom(p => Math.min(MAX_ZOOM, p + ZOOM_STEP)), [])
-  const zoomOut = useCallback(() => setZoom(p => Math.max(MIN_ZOOM, p - ZOOM_STEP)), [])
-  const resetView = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }) }, [])
+  const zoomIn = useCallback(() => { userZoomed.current = true; setZoom(p => Math.min(MAX_ZOOM, p + ZOOM_STEP)) }, [])
+  const zoomOut = useCallback(() => { userZoomed.current = true; setZoom(p => Math.max(MIN_ZOOM, p - ZOOM_STEP)) }, [])
+  const resetView = useCallback(() => {
+    const c = containerRef.current; if (!c) { setZoom(1); setPan({ x: 0, y: 0 }); userZoomed.current = true; return }
+    const cw = c.clientWidth, ch = c.clientHeight
+    const fit = Math.min(cw / config.width, ch / config.height) * 0.96
+    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, fit)))
+    setPan({ x: 0, y: 0 })
+    userZoomed.current = true
+  }, [config.width, config.height])
+
+  useEffect(() => {
+    const el = containerRef.current; if (!el) return
+    const ro = new ResizeObserver(entries => {
+      for (const e of entries) setContainerSize({ width: e.contentRect.width, height: e.contentRect.height })
+    })
+    ro.observe(el)
+    setContainerSize({ width: el.clientWidth, height: el.clientHeight })
+    return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (userZoomed.current) return
+    const w = containerSize.width, h = containerSize.height
+    if (w <= 0 || h <= 0) return
+    const fit = Math.min(w / config.width, h / config.height) * 0.96
+    setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, fit)))
+  }, [containerSize.width, containerSize.height, config.width, config.height])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button !== 0) return
@@ -156,16 +184,16 @@ const MapStage: React.FC<IMapStageProps> = ({
       onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
       onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
       {/* Zoom controls */}
-      <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
+      <div className="absolute bottom-2 right-2 z-20 flex flex-col gap-1">
         <button onClick={zoomIn} style={zBtnStyle} title="Zoom In">+</button>
         <button onClick={resetView} style={{ ...zBtnStyle, fontSize: 11, padding: '2px 6px' }} title="Reset">⟲</button>
         <button onClick={zoomOut} style={zBtnStyle} title="Zoom Out">−</button>
         <span className="text-center text-[10px] text-gray-500 bg-white/90 rounded px-1 py-0.5">{Math.round(zoom * 100)}%</span>
       </div>
 
-      {/* Trolley summary */}
-      {floorStats && (
-        <div className="absolute top-2 left-2 z-20 flex flex-col gap-1 text-[11px] font-semibold">
+      {/* Trolley summary — moved to bottom info bar in dashboard; keep lightweight version in map for legacy views */}
+      {floorStats && false && (
+        <div className="absolute bottom-3 left-3 z-20 flex flex-col gap-1 text-[11px] font-semibold bg-white/90 rounded-md px-2 py-1.5 border shadow-sm">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-gray-700 text-[10px] font-bold min-w-[60px]">{floorLabel ?? 'Floor'}</span>
             <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full border border-blue-300">● {floorStats.ec} EC</span>
@@ -187,12 +215,12 @@ const MapStage: React.FC<IMapStageProps> = ({
         </div>
       )}
 
-      {/* Canvas */}
-      <div style={{ position: 'absolute', inset: 0, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'center center', cursor: isPanning ? 'grabbing' : 'grab', willChange: 'transform' }}>
+      {/* Canvas - fixed-size map div centered in the container */}
+      <div style={{ position: 'absolute', left: '50%', top: '50%', width: config.width, height: config.height, marginLeft: -config.width / 2, marginTop: -config.height / 2, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'center center', cursor: isPanning ? 'grabbing' : 'grab', willChange: 'transform' }}>
         {mapImageUrl && <img src={mapImageUrl} alt="Map" className="absolute inset-0 w-full h-full object-contain pointer-events-none" />}
         {regions?.map(r => (
           <div key={r.id} style={{ position: 'absolute', left: r.rect.x, top: r.rect.y, width: r.rect.width, height: r.rect.height, backgroundColor: r.fillColor, border: `2px dashed ${r.borderColor}`, borderRadius: 10, pointerEvents: 'none', zIndex: 1 }}>
-            <div style={{ position: 'absolute', top: 6, left: 6, fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.78)', backgroundColor: r.labelColor, border: `1px solid ${r.borderColor}`, padding: '2px 8px', borderRadius: 999 }}>{r.label}</div>
+            <div style={{ position: 'absolute', bottom: 6, right: 6, fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.9)', backgroundColor: r.labelColor, border: `1px solid ${r.borderColor}`, padding: '2px 8px', borderRadius: 999 }}>{r.label}</div>
           </div>
         ))}
         {boxes.map(box => {
@@ -222,16 +250,14 @@ const MapStage: React.FC<IMapStageProps> = ({
 
       {/* Legend */}
       {showLegend && (
-        <div className="absolute bottom-0 left-0 bg-white/95 border-t px-4 py-2 z-15" style={{ right: isAnyPanelOpen ? 280 : 0, transition: 'right 0.2s' }}>
-          <div className="flex flex-wrap gap-3 text-[11px] items-center">
+        <div className="absolute left-2 bottom-2 bg-white/95 border rounded-md px-2.5 py-1 z-15 text-[10px] shadow-sm">
+          <div className="flex flex-wrap gap-x-2.5 gap-y-0.5 items-center">
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.AP]} label="Parking" />
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.CP]} label="Charging" />
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.ELEVATOR]} label="Elevator" />
-            <LegendItem color={BOX_TYPE_COLORS[EBoxType.STORAGE]} label="Storage" />
             <LegendItem color={BOX_TYPE_COLORS[EBoxType.DISPATCH]} label="Dispatch" />
-            <LegendItem color={BOX_TYPE_COLORS[EBoxType.CHUTE]} label="Chute" />
-            <LegendItem color={BOX_TYPE_COLORS[EBoxType.DOOR]} label="Door" />
-            <span className="w-px h-4 bg-gray-300" />
+            <LegendItem color={BOX_TYPE_COLORS[EBoxType.CHUTE]} label="Dirty Linen" />
+            <span className="w-px h-3 bg-gray-300" />
             <TLegend color={TROLLEY_TYPE_COLORS[ETrolleyType.EMPTY_CLEAN]} label="Empty Clean" />
             <TLegend color={TROLLEY_TYPE_COLORS[ETrolleyType.FULL_CLEAN]} label="Full Clean" />
             <TLegend color={TROLLEY_TYPE_COLORS[ETrolleyType.EMPTY_SOILED]} label="Empty Soiled" />
@@ -248,6 +274,7 @@ const MapStage: React.FC<IMapStageProps> = ({
             assignment={panelMode.kind === 'detail' && trolleyMap ? trolleyMap[panelMode.apId] ?? null : null}
             assignedTrolleyIds={assignedTrolleyIds}
             trolleyRegistry={trolleyRegistry ?? []}
+            boxType={panelMode.kind === 'detail' ? boxes.find(b => b.id === panelMode.apId)?.type : undefined}
             onAssignTrolley={(apId, trolleyId) => { const b = findBoxById(apId); onTrolleyAssign?.(apId, trolleyId, b.area, b.floor) }}
             onRemoveTrolley={apId => onTrolleyRemove?.(apId)}
             onUpdateTrolleyType={(id, type) => onUpdateTrolleyType?.(id, type)}
@@ -279,6 +306,7 @@ const MapStage: React.FC<IMapStageProps> = ({
             onQueueRfidReturn={onQueueRfidReturn}
             onCancelExecute={onCancelExecute}
             onCabinetDoorAction={onCabinetDoorAction}
+            onCallLift={async (_elevatorId, floor) => { await new Promise(r => setTimeout(r, 1500)) }}
             onActionError={showActionError}
             onCancelMove={() => {
               if ([/* any dest selection mode */].includes(panelMode.kind)) {
