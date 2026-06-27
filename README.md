@@ -29,7 +29,7 @@ A sanitized portfolio project: interactive fleet management dashboard for hotel 
 ### Key Feature: Interactive Map
 
 - Zoom/pan/pinch on a 1200×420px SVG-style station layout
-- 20+ parking stations (APs), charging points (CPs), elevators, chute rooms, and dispatch zones
+- 20+ parking stations (APs), charging points (CPs), elevators, dirty linen rooms, and dispatch zones
 - Each station shows assigned trolley type (colored indicator)
 - Click a station → detail panel: assign/remove trolley, execute move (2.5s simulated), queue move
 - Trolley states update visually after execution
