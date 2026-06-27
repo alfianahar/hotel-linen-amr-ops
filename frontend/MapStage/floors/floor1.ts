@@ -10,7 +10,7 @@ const boxes: TMapBox[] = [
   { id: 'E2', type: EBoxType.ELEVATOR, label: 'E2', lmId: 'E2', description: 'Elevator',
     pose: { position: { x: 470, y: 150 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: 1, area: EParkingArea.EMain } as ISpecialLMBox,
   { id: 'AP101', type: EBoxType.AP, label: '1A', pose: { position: { x: 30, y: 150 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: 1, area: EParkingArea.EChute } as IAPBox,
-  { id: 'LM104', type: EBoxType.CHUTE, label: 'Chute', lmId: 'LM104', description: 'Chute',
+  { id: 'LM104', type: EBoxType.CHUTE, label: 'Dirty Linen', lmId: 'LM104', description: 'Dirty Linen',
     pose: { position: { x: 170, y: 150 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: 1, area: 'Corridor' } as ISpecialLMBox,
   { id: 'AP102', type: EBoxType.AP, label: '1B', pose: { position: { x: 170, y: 220 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: 1, area: 'Corridor' } as IAPBox,
 ]

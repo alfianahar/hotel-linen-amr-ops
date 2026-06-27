@@ -10,8 +10,8 @@ export function createWardFloorConfig(p: IWardFloorParams): IFloorConfig {
   const boxes: TMapBox[] = [
     { id: `E${f}1`, type: EBoxType.ELEVATOR, label: `E${f}1`, lmId: `E${f}1`, description: 'Elevator', pose: { position: { x: 470, y: 80 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'Elevator' } as ISpecialLMBox,
     { id: `E${f}2`, type: EBoxType.ELEVATOR, label: `E${f}2`, lmId: `E${f}2`, description: 'Elevator', pose: { position: { x: 470, y: 140 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'Elevator' } as ISpecialLMBox,
-    { id: `C${f}`, type: EBoxType.CHUTE, label: `C${f}`, lmId: `C${f}`, description: 'Chute', pose: { position: { x: 300, y: 140 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'ChuteArea' } as ISpecialLMBox,
-    { id: `AP${f}01`, type: EBoxType.AP, label: `F${f}A`, pose: { position: { x: 300, y: 220 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'ChuteArea' } as IAPBox,
+    { id: `C${f}`, type: EBoxType.CHUTE, label: `C${f}`, lmId: `C${f}`, description: 'Dirty Linen', pose: { position: { x: 300, y: 140 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'DirtyLinenArea' } as ISpecialLMBox,
+    { id: `AP${f}01`, type: EBoxType.AP, label: `F${f}A`, pose: { position: { x: 300, y: 220 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'DirtyLinenArea' } as IAPBox,
     { id: `AP${f}02`, type: EBoxType.AP, label: `F${f}B`, pose: { position: { x: 380, y: 140 }, orientation: { x: 0, y: 0, z: 0, w: 1 } }, isClickable: true, floor: f, area: 'Main' } as IAPBox,
   ]
   return {

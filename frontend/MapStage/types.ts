@@ -2,7 +2,7 @@ export enum EBoxType {
   AP = 'AP',
   CP = 'CP',
   ELEVATOR = 'ELEVATOR',
-  CHUTE = 'CHUTE',
+  CHUTE = 'DIRTY_LINEN',
   STORAGE = 'STORAGE',
   DISPATCH = 'DISPATCH',
   RFID_KABINET = 'RFID_KABINET',
@@ -13,7 +13,7 @@ export enum EParkingArea {
   EDispatch = 'Dispatch',
   EStorage = 'Storage',
   EMain = 'Main',
-  EChute = 'ChuteArea',
+  EChute = 'DirtyLinenArea',
   EElevator = 'Elevator',
 }
 

@@ -43,7 +43,7 @@ export const SPECIAL_LM_CONFIG = {
   LM14: { type: EBoxType.STORAGE, label: 'Storage Room', description: 'Storage Room Access Point' },
   LM33: { type: EBoxType.DISPATCH, label: 'Dispatch', description: 'Dispatch Room Entry' },
   LM43: { type: EBoxType.DISPATCH, label: 'Dispatch', description: 'Dispatch Room Exit' },
-  LM38: { type: EBoxType.CHUTE, label: 'Chute', description: 'Chute Area Access Point' },
+  LM38: { type: EBoxType.CHUTE, label: 'Dirty Linen', description: 'Dirty Linen Area Access Point' },
 } as const
 
 export const TROLLEY_TYPE_COLORS: Record<ETrolleyType, string> = {
